@@ -1,0 +1,412 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotización Formal - Soluciones NR & Intelisis</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @media print {
+            body {
+                background-color: white !important;
+                -webkit-print-color-adjust: exact;
+                color: #0f172a !important;
+                font-size: 10pt;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            input, textarea, select {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                resize: none;
+                box-shadow: none !important;
+                outline: none !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+            input[type="radio"] {
+                display: none !important;
+            }
+            table {
+                width: 100% !important;
+                page-break-inside: auto;
+            }
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+            thead {
+                display: table-header-group;
+            }
+            tfoot {
+                display: table-footer-group;
+            }
+            .sheet-card {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+        }
+        .print-only {
+            display: none;
+        }
+        /* Ajuste automático de altura para textareas */
+        textarea.auto-expand {
+            min-height: 48px;
+            field-sizing: content;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Top Bar de Acciones (Solo Web) -->
+    <header class="no-print bg-slate-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-file-invoice-dollar text-emerald-400 text-xl"></i>
+                <span class="font-bold text-sm tracking-wide">Portal de Cotizaciones - Soluciones NR</span>
+            </div>
+            <button onclick="exportToPDF()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-semibold shadow transition-all flex items-center gap-2 text-sm">
+                <i class="fa-solid fa-file-pdf"></i> Imprimir / Generar PDF Profesional
+            </button>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal Estilo Hoja Cotización -->
+    <main class="max-w-5xl mx-auto px-6 py-8 w-full flex-grow">
+        <div class="bg-white shadow-2xl rounded-xl overflow-hidden border border-slate-200 p-8 sheet-card">
+            
+            <!-- ENCABEZADO SUPERIOR EDITABLE -->
+            <div class="flex flex-col md:flex-row justify-between items-start border-b pb-6 mb-6 gap-4">
+                <div class="w-full md:w-1/2">
+                    <h1 class="text-3xl font-black text-teal-700 tracking-wide uppercase">Cotización</h1>
+                    <div class="mt-3 space-y-1">
+                        <input type="text" id="company-name" value="Soluciones / Software" class="w-full font-bold text-lg text-slate-800 bg-slate-50 border border-slate-200 rounded px-2 py-1 focus:bg-white focus:outline-teal-600">
+                        <input type="text" id="company-location" value="México" class="w-full text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded px-2 py-0.5 focus:bg-white focus:outline-teal-600">
+                        <input type="text" id="company-rfc" value="RFC: XXX000000XXX" class="w-full text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded px-2 py-0.5 focus:bg-white focus:outline-teal-600">
+                        <input type="text" id="company-contact" value="contacto@soluciones.com | Tel: +52 1 000 000 0000" class="w-full text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded px-2 py-0.5 focus:bg-white focus:outline-teal-600">
+                    </div>
+                </div>
+                <div class="flex items-start gap-4 w-full md:w-auto justify-between md:justify-end">
+                    <div class="hidden md:block w-1 h-24 bg-teal-600 rounded-full"></div>
+                    <div class="text-right space-y-2">
+                        <div class="inline-block">
+                            <input type="text" id="quote-number" value="N.° Q-2026-55328" class="bg-teal-600 text-white font-bold text-xs px-4 py-1.5 rounded shadow-sm text-center border-none focus:outline-none">
+                        </div>
+                        <div class="text-xs space-y-1 text-slate-600">
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-slate-400">Fecha de Emisión:</span> 
+                                <input type="text" id="current-date" class="w-28 text-right font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded px-1 py-0.5 focus:bg-white focus:outline-teal-600">
+                            </div>
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-slate-400">Válido Hasta:</span> 
+                                <input type="text" id="valid-date" class="w-28 text-right font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded px-1 py-0.5 focus:bg-white focus:outline-teal-600">
+                            </div>
+                            <div class="flex items-center justify-end gap-2">
+                                <span class="text-slate-400">Referencia:</span> 
+                                <input type="text" id="quote-ref" value="SRV-INTELISIS-2026" class="w-36 text-right font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded px-1 py-0.5 focus:bg-white focus:outline-teal-600">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BLOQUE CLIENTE Y VENDEDOR EDITABLE -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-2">
+                    <span class="text-xs font-black text-teal-700 uppercase tracking-wider block"><i class="fa-solid fa-user-tag mr-1"></i> Cliente</span>
+                    <input type="text" id="client-name" value="Empresa / Cliente Intelisis" class="w-full font-bold text-slate-800 text-sm bg-white border border-slate-200 rounded px-2 py-1 focus:outline-teal-600">
+                    <input type="text" id="client-attn" value="At'n: Dirección / Sistemas" class="w-full text-xs text-slate-600 bg-white border border-slate-200 rounded px-2 py-1 focus:outline-teal-600">
+                    <input type="text" id="client-city" value="Mexico" class="w-full text-xs text-slate-600 bg-white border border-slate-200 rounded px-2 py-1 focus:outline-teal-600">
+                    <input type="text" id="client-email" value="contacto@cliente-intelisis.com" class="w-full text-xs text-slate-600 bg-white border border-slate-200 rounded px-2 py-1 focus:outline-teal-600">
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-2">
+                    <span class="text-xs font-black text-teal-700 uppercase tracking-wider block"><i class="fa-solid fa-id-badge mr-1"></i> Vendedor / Consultor</span>
+                    <input type="text" id="seller-name" value="Ing. Marco Vaca" oninput="syncSellerName(this.value)" class="w-full font-bold text-slate-800 text-sm bg-white border border-slate-200 rounded px-2 py-1 focus:outline-teal-600">
+                    <input type="text" id="seller-code" value="Código: VEN-NR-01" class="w-full text-xs text-slate-600 bg-white border border-slate-200 rounded px-2 py-1 focus:outline-teal-600">
+                    <input type="text" id="seller-email" value="marcovaca@soluciones.com" class="w-full text-xs text-slate-600 bg-white border border-slate-200 rounded px-2 py-1 focus:outline-teal-600">
+                    <input type="text" id="seller-phone" value="+52 1 000 000 0000" class="w-full text-xs text-slate-600 bg-white border border-slate-200 rounded px-2 py-1 focus:outline-teal-600">
+                </div>
+            </div>
+
+            <!-- TABLA DE ITEMS Y ACCIÓN DE AGREGAR -->
+            <div class="mb-4 flex justify-between items-center no-print">
+                <h3 class="text-xs font-black text-slate-600 uppercase tracking-wider"><i class="fa-solid fa-list-check mr-1"></i> Conceptos de la Cotización</h3>
+                <button onclick="addItem()" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-3 py-2 rounded shadow transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i> Agregar Nuevo Concepto
+                </button>
+            </div>
+
+            <div class="overflow-x-auto mb-8">
+                <table class="w-full text-left border-collapse table-auto">
+                    <thead>
+                        <tr class="bg-teal-700 text-white uppercase text-[11px] tracking-wider">
+                            <th class="py-3 px-3 rounded-l-md w-24 text-center">Código</th>
+                            <th class="py-3 px-4">Concepto / Requerimiento</th>
+                            <th class="py-3 px-3 text-center no-print w-32">Modalidad</th>
+                            <th class="py-3 px-3 text-center w-36">Detalle / Horas</th>
+                            <th class="py-3 px-4 text-right w-36">Total ($)</th>
+                            <th class="py-3 px-2 text-center rounded-r-md no-print w-12">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quote-table-body" class="divide-y divide-slate-100 text-sm">
+                        <!-- Generado dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SECCIÓN INFERIOR: TOTALES Y CONDICIONES -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start border-t pt-6 mb-8">
+                <!-- Izquierda: Notas y Condiciones de Pago Editables -->
+                <div class="space-y-4">
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h4 class="text-xs font-bold text-teal-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-note-sticky"></i> Notas y Condiciones al Pie
+                        </h4>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase">Condición para Servicios por Hora:</label>
+                                <textarea id="cond-hora" rows="2" class="w-full text-xs text-slate-700 bg-white border border-slate-200 rounded p-1.5 focus:outline-teal-600 mt-0.5">Pago semanal de la cantidad de horas efectivamente trabajadas y validadas al finalizar cada semana operativa.</textarea>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase">Condición para Proyectos por Proyecto:</label>
+                                <textarea id="cond-proyecto" rows="2" class="w-full text-xs text-slate-700 bg-white border border-slate-200 rounded p-1.5 focus:outline-teal-600 mt-0.5">Se solicita el 50% de anticipo al inicio y el 50% restante al poner en producción / liberar el sistema.</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Derecha: Desglose de Totales -->
+                <div class="bg-slate-50 p-6 rounded-lg border border-slate-200 flex flex-col justify-between">
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between text-slate-600">
+                            <span>Subtotal:</span>
+                            <span id="summary-subtotal" class="font-semibold">$0.00 MXN</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>Descuento aplicado:</span>
+                            <span class="font-semibold text-emerald-600">$0.00 MXN</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600 border-b pb-2">
+                            <span>Base Imponible:</span>
+                            <span id="summary-base" class="font-semibold">$0.00 MXN</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600 text-xs">
+                            <span>IVA (16%):</span>
+                            <span id="summary-iva" class="font-medium">$0.00 MXN</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t-2 border-teal-700 flex justify-between items-center bg-teal-50 p-3 rounded">
+                        <span class="font-bold text-teal-900 text-base">TOTAL:</span>
+                        <span id="grand-total" class="text-2xl font-black text-teal-700">$0.00 MXN</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PIE DE PAGINA / FIRMAS EDITABLES -->
+            <div class="border-t pt-8 mt-4 text-center text-xs text-slate-500 space-y-4">
+                <div class="grid grid-cols-2 gap-16 max-w-lg mx-auto pt-4">
+                    <div class="border-t border-slate-400 pt-2">
+                        <p class="font-bold text-slate-700">Elaboró</p>
+                        <p id="signature-seller" class="text-[11px] text-slate-500 font-medium mt-1">Ing. Marco Vaca</p>
+                    </div>
+                    <div class="border-t border-slate-400 pt-2">
+                        <p class="font-bold text-slate-700">Aceptó (Cliente)</p>
+                        <p class="text-[10px] text-slate-400 mt-1">Firma de Conformidad</p>
+                    </div>
+                </div>
+                <div class="pt-2">
+                    <input type="text" id="footer-note" value="Esta cotización incluye soporte técnico y garantía en desarrollos. Precios válidos por 30 días." class="w-full text-center text-[10px] text-slate-400 bg-slate-50 border border-slate-200 rounded py-1 focus:bg-white focus:outline-teal-600">
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer Web -->
+    <footer class="no-print bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        Portal configurado dinámicamente para Soluciones NR | Intelisis Services &bull; 2026
+    </footer>
+
+    <!-- Script de lógica -->
+    <script>
+        const today = new Date();
+        const validUntil = new Date();
+        validUntil.setDate(today.getDate() + 30);
+
+        document.getElementById('current-date').value = today.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        document.getElementById('valid-date').value = validUntil.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+        let items = [
+            { id: 1, code: "CAP-001", title: "Capacitación de Reportes, Exploradores y Herramientas (13 Módulos: Gastos, Compras, CxP, CxC, Contabilidad, Tesorería, Nóminas, Ventas, Logística/Inventarios, Importación, Activos Fijos, Fiscal, RRHH)", defaultMode: "hora", hours: 15, rate: 650, totalProject: 0 },
+            { id: 2, code: "RET-002", title: "Retenciones: Revisión de flujos de compras y gastos que impliquen retenciones y contabilización correcta.", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 2500 },
+            { id: 3, code: "BAL-003", title: "Balanza: Revisión y corrección de cuenta que no está acumulando correctamente en la balanza.", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 1800 },
+            { id: 4, code: "CXP-004", title: "CxP: Corrección de movimientos con Saldo = 0 pero que aparecen con saldo en Explorador.", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 2200 },
+            { id: 5, code: "CXP-005", title: "CxP: Solución para anticipos no aplicables por diferencia de monedas a la facturación.", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 3500 },
+            { id: 6, code: "CXC-006", title: "CxC: Corrección de movimientos con Saldo = 0 pero con saldo en Explorador de Saldos.", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 2200 },
+            { id: 8, code: "EMP-008", title: "Integración de empresas pequeñas en Intelisis (Plan de arranque para el 2027).", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 12000 },
+            { id: 9, code: "SIS-009", title: "Capacitación a Sistemas: Asignación de permisos, accesos y revisión de usuarios actuales.", defaultMode: "hora", hours: 6, rate: 600, totalProject: 0 },
+            { id: 10, code: "INT-010", title: "Movimientos Interempresas (TTM Empresa 2 a Textivision Empresa 1): Automatización de CxP, CxC y complementos de pago.", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 8500 },
+            { id: 12, code: "AUT-012", title: "Niveles de Autorización: Configuración de límites por monto (ej. jefes hasta $10,000, superiores a dirección).", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 4000 },
+            { id: 13, code: "TIM-013", title: "Timbrado de constancias de retención directamente desde el sistema Intelisis.", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 3000 },
+            { id: 15, code: "CP-015", title: "Carta Porte: Rediseño y mejora visual del archivo PDF + Solución de error al repetir productos idénticos en múltiples facturas por viaje.", defaultMode: "proyecto", hours: 0, rate: 0, totalProject: 5500 }
+        ];
+
+        function syncSellerName(val) {
+            document.getElementById('signature-seller').innerText = val;
+        }
+
+        function addItem() {
+            items.push({
+                id: Date.now(),
+                code: `NEW-0${items.length + 1}`,
+                title: "Nuevo concepto o requerimiento personalizado...",
+                defaultMode: "proyecto",
+                hours: 0,
+                rate: 0,
+                totalProject: 1500
+            });
+            renderTable();
+        }
+
+        function deleteItem(index) {
+            items.splice(index, 1);
+            renderTable();
+        }
+
+        function updateCode(index, val) {
+            items[index].code = val;
+        }
+
+        function updateTitle(index, val) {
+            items[index].title = val;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('quote-table-body');
+            tbody.innerHTML = '';
+
+            items.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition-colors align-top";
+
+                const isHour = item.defaultMode === 'hora';
+                const rowTotal = isHour ? (item.hours * item.rate) : item.totalProject;
+                const formattedRowTotal = `$${rowTotal.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+
+                tr.innerHTML = `
+                    <td class="py-3 px-3 align-top text-center whitespace-nowrap">
+                        <input type="text" value="${item.code}" onchange="updateCode(${index}, this.value)" class="w-20 font-mono text-xs font-bold text-teal-700 text-center bg-white border border-slate-200 rounded px-1 py-1 focus:outline-teal-600">
+                    </td>
+                    <td class="py-3 px-4 text-slate-800 align-top">
+                        <textarea rows="3" onchange="updateTitle(${index}, this.value)" class="w-full text-xs font-semibold text-slate-800 bg-white border border-slate-200 rounded p-2 focus:outline-teal-600 auto-expand">${item.title}</textarea>
+                    </td>
+                    <td class="py-3 px-3 text-center align-top no-print">
+                        <div class="inline-flex rounded p-0.5 bg-slate-200 text-[11px] font-semibold">
+                            <label class="px-2 py-1 rounded cursor-pointer transition-all ${isHour ? 'bg-white shadow text-teal-700 font-bold' : 'text-slate-600'}">
+                                <input type="radio" name="mode_${index}" value="hora" ${isHour ? 'checked' : ''} onchange="updateMode(${index}, 'hora')" class="hidden"> Hora
+                            </label>
+                            <label class="px-2 py-1 rounded cursor-pointer transition-all ${!isHour ? 'bg-white shadow text-teal-700 font-bold' : 'text-slate-600'}">
+                                <input type="radio" name="mode_${index}" value="proyecto" ${!isHour ? 'checked' : ''} onchange="updateMode(${index}, 'proyecto')" class="hidden"> Proy.
+                            </label>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 text-center align-top">
+                        ${isHour ? `
+                            <div class="flex items-center justify-center gap-1">
+                                <div>
+                                    <span class="text-[9px] text-slate-400 block no-print">Hrs</span>
+                                    <input type="number" min="0" value="${item.hours}" onchange="updateHours(${index}, this.value)" class="w-11 border rounded px-1 py-1 text-center text-xs font-semibold focus:outline-teal-600">
+                                </div>
+                                <span class="text-slate-400 text-xs">×</span>
+                                <div>
+                                    <span class="text-[9px] text-slate-400 block no-print">$ / Hr</span>
+                                    <input type="number" min="0" value="${item.rate}" onchange="updateRate(${index}, this.value)" class="w-20 border rounded px-1 py-1 text-center text-xs font-semibold focus:outline-teal-600">
+                                </div>
+                            </div>
+                        ` : `
+                            <span class="text-[11px] text-slate-500 italic bg-slate-100 px-2 py-1 rounded inline-block mt-1">Costo Único</span>
+                        `}
+                    </td>
+                    <td class="py-3 px-4 text-right align-top font-bold text-slate-800">
+                        ${isHour ? `
+                            <div>
+                                <span class="pt-1 inline-block">${formattedRowTotal}</span>
+                                <span class="text-[9px] text-slate-400 font-normal block">${item.hours}h a$${item.rate}</span>
+                            </div>
+                        ` : `
+                            <div class="flex items-center justify-end gap-1 pt-1">
+                                <span class="text-xs font-bold text-slate-600">$</span>
+                                <input type="number" min="0" value="${item.totalProject}" onchange="updateProjectCost(${index}, this.value)" class="w-28 border rounded px-2 py-1 text-right text-xs font-bold text-slate-800 focus:outline-teal-600">
+                            </div>
+                        `}
+                    </td>
+                    <td class="py-3 px-2 text-center align-top no-print">
+                        <button onclick="deleteItem(${index})" class="text-red-500 hover:text-red-700 p-1.5 rounded transition-colors mt-1" title="Eliminar concepto">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            calculateTotals();
+        }
+
+        function updateMode(index, mode) {
+            items[index].defaultMode = mode;
+            renderTable();
+        }
+
+        function updateHours(index, val) {
+            items[index].hours = parseFloat(val) || 0;
+            renderTable();
+        }
+
+        function updateRate(index, val) {
+            items[index].rate = parseFloat(val) || 0;
+            renderTable();
+        }
+
+        function updateProjectCost(index, val) {
+            items[index].totalProject = parseFloat(val) || 0;
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let subtotal = 0;
+            items.forEach(item => {
+                if (item.defaultMode === 'hora') {
+                    subtotal += (item.hours * item.rate);
+                } else {
+                    subtotal += item.totalProject;
+                }
+            });
+
+            const iva = subtotal * 0.16;
+            const total = subtotal + iva;
+
+            document.getElementById('summary-subtotal').innerText = `$${subtotal.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN`;
+            document.getElementById('summary-base').innerText = `$${subtotal.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN`;
+            document.getElementById('summary-iva').innerText = `$${iva.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN`;
+            document.getElementById('grand-total').innerText = `$${total.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN`;
+        }
+
+        function exportToPDF() {
+            window.print();
+        }
+
+        // Initial render
+        renderTable();
+    </script>
+</body>
+</html>
